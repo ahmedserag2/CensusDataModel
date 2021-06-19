@@ -10,7 +10,7 @@ from sklearn.cluster import KMeans
 from numpy.random import randint
 from numpy.random import rand
 
-path = "adult.data.csv"
+path = "../adult.data.csv"
 df = pd.read_csv(path)
 
 
