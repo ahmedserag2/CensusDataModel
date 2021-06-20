@@ -74,98 +74,82 @@ def k_means(no_clusters):
     kmeans = KMeans(n_clusters=no_clusters, random_state=0).fit(df_merged)
     return kmeans.inertia_
 
-print(k_means(3))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#genetic algorithm 
-
+# objective function
 def onemax(x):
-	#print(np.asarray(x) > 0)
-#	df_merged[df_merged.columns[np.asarray(x) > 0]]
-	X_train, X_test, y_train, y_test = train_test_split(df_merged[df_merged.columns[np.asarray(x) > 0]], df['salary'], test_size=0.66)
-    # Create KNN classifier
-	knn = KNeighborsClassifier(n_neighbors = 7)
-# Fit the classifier to the data
-	knn.fit(X_train,y_train)
-	return -1 *knn.score(X_test, y_test)
+    #print(np.asarray(x) > 0)
+    #df_merged[df_merged.columns[np.asarray(x) > 0]]
+    X_train, X_test, y_train, y_test = train_test_split(df_merged[df_merged.columns[np.asarray(x) > 0]], df['salary'], test_size=0.66)
+    #Create KNN classifier
+    knn = KNeighborsClassifier(n_neighbors = 7)
+    # Fit the classifier to the data
+    knn.fit(X_train,y_train)
+    return -1 *knn.score(X_test, y_test)
 
 # tournament selection
 def selection(pop, scores, k=3):
-	# first random selection
-	selection_ix = randint(len(pop))
-	for ix in randint(0, len(pop), k-1):
-		# check if better (e.g. perform a tournament)
-		if scores[ix] < scores[selection_ix]:
-			selection_ix = ix
-	return pop[selection_ix]
+    # first random selection
+    selection_ix = randint(len(pop))
+    for ix in randint(0, len(pop), k-1):
+        # check if better (e.g. perform a tournament)
+        if scores[ix] < scores[selection_ix]:
+            selection_ix = ix
+    return pop[selection_ix]
 
 # crossover two parents to create two children
 def crossover(p1, p2, r_cross):
-	# children are copies of parents by default
-	c1, c2 = p1.copy(), p2.copy()
-	# check for recombination
-	if rand() < r_cross:
-		# select crossover point that is not on the end of the string
-		pt = randint(1, len(p1)-2)
-		# perform crossover
-		c1 = p1[:pt] + p2[pt:]
-		c2 = p2[:pt] + p1[pt:]
-	return [c1, c2]
+    # children are copies of parents by default
+    c1, c2 = p1.copy(), p2.copy()
+    # check for recombination
+    if rand() < r_cross:
+        # select crossover point that is not on the end of the string
+        pt = randint(1, len(p1)-2)
+        # perform crossover
+        c1 = p1[:pt] + p2[pt:]
+        c2 = p2[:pt] + p1[pt:]
+    return [c1, c2]
 
 # mutation operator
 def mutation(bitstring, r_mut):
-	for i in range(len(bitstring)):
-		# check for a mutation
-		if rand() < r_mut:
-			# flip the bit
-			bitstring[i] = 1 - bitstring[i]
+    for i in range(len(bitstring)):
+        # check for a mutation
+        if rand() < r_mut:
+            # flip the bit
+            bitstring[i] = 1 - bitstring[i]
 
 # genetic algorithm
 def genetic_algorithm(objective, n_bits, n_iter, n_pop, r_cross, r_mut):
-	# initial population of random bitstring
-	pop = [randint(0, 2, n_bits).tolist() for _ in range(n_pop)]
-	# keep track of best solution
-	best, best_eval = 0, objective(pop[0])
-	# enumerate generations
-	for gen in range(n_iter):
-		# evaluate all candidates in the population
-		scores = [objective(c) for c in pop]
-		# check for new best solution
-		for i in range(n_pop):
-			if scores[i] < best_eval:
-				best, best_eval = pop[i], scores[i]
-				print(">%d, new best f(%s) = %.3f" % (gen,  pop[i], scores[i]))
-		# select parents
-		selected = [selection(pop, scores) for _ in range(n_pop)]
-		# create the next generation
-		children = list()
-		for i in range(0, n_pop, 2):
-			# get selected parents in pairs
-			p1, p2 = selected[i], selected[i+1]
-			# crossover and mutation
-			for c in crossover(p1, p2, r_cross):
-				# mutation
-				mutation(c, r_mut)
-				# store for next generation
-				children.append(c)
-		# replace population
-		pop = children
-	return [best, best_eval]
+    # initial population of random bitstring
+    pop = [randint(0, 2, n_bits).tolist() for _ in range(n_pop)]
+    # keep track of best solution
+    best, best_eval = 0, objective(pop[0])
+    # enumerate generations
+    for gen in range(n_iter):
+        # evaluate all candidates in the population
+        scores = [objective(c) for c in pop]
+        # check for new best solution
+        for i in range(n_pop):
+            if scores[i] < best_eval:
+                best, best_eval = pop[i], scores[i]
+                print(">%d, new best f(%s) = %.3f" % (gen,  pop[i], scores[i]))
+        # select parents
+        selected = [selection(pop, scores) for _ in range(n_pop)]
+        # create the next generation
+        children = list()
+        for i in range(0, n_pop, 2):
+            # get selected parents in pairs
+            p1, p2 = selected[i], selected[i+1]
+            # crossover and mutation
+            for c in crossover(p1, p2, r_cross):
+                # mutation
+                mutation(c, r_mut)
+                # store for next generation
+                children.append(c)
+        # replace population
+        pop = children
+    return [best, best_eval]
 
 # define the total iterations
 n_iter = 100
@@ -181,5 +165,44 @@ r_mut = 1.0 / float(n_bits)
 #best, score = genetic_algorithm(onemax, n_bits, n_iter, n_pop, r_cross, r_mut)
 #print('Done!')
 #print('f(%s) = %f' % (best, score))
+
+print("CHoose your algorithm")
+print("1-KNN")
+print("2-Decision Tree")
+print("3-Kmeans")
+print("4-hybrid KNN TAKES LONG TIME")
+print("5-for hybrid KNN result right away")
+
+
+choice = input()
+
+
+
+if (choice == '1'):
+    print('KNN score' ,knn(5))
+    
+elif(choice == '2'):
+    print('Decision Tree' ,decision_tree(3))
+
+elif(choice == '3'):
+    print('Kmenans inertia' ,k_means(3))
+    
+elif(choice == '4'):
+    best, score = genetic_algorithm(onemax, n_bits, n_iter, n_pop, r_cross, r_mut)
+    print('Done!')
+    print('f(%s) = %f' % (best, score))
+elif(choice == '5'):
+    best_choice = np.array([0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0])
+    X_train, X_test, y_train, y_test = train_test_split(df_merged[df_merged.columns[best_choice > 0]], df['salary'], test_size=0.66)
+    # Create KNN classifier
+    knn = KNeighborsClassifier(n_neighbors = 5)
+    # Fit the classifier to the data
+    knn.fit(X_train,y_train)
+    print('hybrid KNN score: ',knn.score(X_test, y_test))
+    
+else:
+    print('invalid choice')
+
+
 
 
